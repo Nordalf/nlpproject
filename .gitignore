@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Custom removals
+training_checkpoints/
+manim/
+Scraper/Version2/node_modules/
+Scraper/Version2/body.txt

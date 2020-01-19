@@ -131,5 +131,11 @@ dmypy.json
 # Custom removals
 training_checkpoints/
 manim/
+ALBERT/
+Scraper/Version2/package-lock.json
 Scraper/Version2/node_modules/
+Scraper/DR/drdkcorpuscopy.txt
+Scraper/DR/package-lock.json
+Scraper/DR/node_modules/
 Scraper/Version2/body.txt
+.vscode/

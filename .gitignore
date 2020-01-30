@@ -139,3 +139,6 @@ Scraper/DR/package-lock.json
 Scraper/DR/node_modules/
 Scraper/Version2/body.txt
 .vscode/
+NLP/cache_dir/*
+NLP/outputs/*
+NLP/runs/*

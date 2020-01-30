@@ -4185,6 +4185,14 @@ Skævinge
 Søborg
 Tulstrup
 København
+København NV
+København N
+København K
+København Ø
+København V
+København SV
+København S
+København NØ
 Elsø
 Hovsør
 Nærum

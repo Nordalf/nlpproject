@@ -5,7 +5,7 @@ import string
 
 drengenavne_map = {}
 # Danish Male Names Mapping
-with open("GodkendteDrengeNavne.txt", 'r') as gdn:
+with open("Godkendte_Drengenavne.csv", 'r', encoding='utf-8') as gdn:
     for line in gdn:
         line = line.rstrip()
         drengenavne_map[line] = line
@@ -18,7 +18,7 @@ def is_in_drengenavne(word):
 
 pigenavne_map = {}
 # Danish Female Names Mapping
-with open("GodkendtePigeNavne.txt", 'r') as gpn:
+with open("Godkendte_Pigenavne.csv", 'r', encoding='utf-8') as gpn:
     for line in gpn:
         line = line.rstrip()
         pigenavne_map[line] = line
@@ -29,36 +29,36 @@ def is_in_pigenavne(word):
             return True
     return False
 
-unisexnavne_map = {}
-# Danish Unisex Names Mapping
-with open("GodkendteUnisexNavne.txt", 'r') as gun:
-    for line in gun:
-        line = line.rstrip()
-        unisexnavne_map[line] = line
+# unisexnavne_map = {}
+# # Danish Unisex Names Mapping
+# with open("GodkendteUnisexNavne.txt", 'r') as gun:
+#     for line in gun:
+#         line = line.rstrip()
+#         unisexnavne_map[line] = line
 
-def is_in_unisexnavne(word):
-    for w in unisexnavne_map:
-        if re.search(r'^' + w + '$', word):
-            return True
-    return False
+# def is_in_unisexnavne(word):
+#     for w in unisexnavne_map:
+#         if re.search(r'^' + w + '$', word):
+#             return True
+#     return False
 
 bynavn_map = {}
 # Danish City Names Mapping
-with open("Bynavne.txt", 'r', encoding="utf8") as bn:
+with open("Bynavne.txt", 'r', encoding="utf-8") as bn:
     for line in bn:
         line = line.rstrip()
         bynavn_map[line] = line
 
 landenavne_map = {}
 # Country Names Mapping
-with open("Landenavne.txt", 'r') as ln:
+with open("Landenavne.txt", 'r', encoding='utf-8') as ln:
     for line in ln:
         line = line.rstrip()
         landenavne_map[line] = line
 
 adresse_map = {}
 # Country Names Mapping
-with open("Adresser.txt", 'r', encoding="utf8") as adrfile:
+with open("Adresser.txt", 'r', encoding="utf=8") as adrfile:
     for line in adrfile:
         line = line.rstrip()
         adresse_map[line] = line
@@ -86,7 +86,7 @@ punctuation_appeared_country = False
 comma_appeared_country = False
 
 with open("drdkcorpus4.txt", "r+", encoding="utf-8") as readfile:
-    with open("dk_ner_corpus.tsv", "a+", encoding="utf-8") as writefile:
+    with open("dk_ner_corpus_bio.tsv", "a+", encoding="utf-8") as writefile:
         for line in readfile:
             splitted_line = line.split(' ')
             for word in splitted_line:
@@ -125,7 +125,7 @@ with open("drdkcorpus4.txt", "r+", encoding="utf-8") as readfile:
                 elif previous_was_location:
                     if word[0].isupper():
                     
-                        if word not in adresse_map and word not in bynavn_map and word not in landenavne_map and word not in drengenavne_map and word not in pigenavne_map and word not in unisexnavne_map:
+                        if word not in adresse_map and word not in bynavn_map and word not in landenavne_map and word not in drengenavne_map and word not in pigenavne_map:
 
                             # Hvis ordet har et korrekt punktum som slutning på en sætning
                             if re.search(r"\.(?!\d+|\w+|\S|\.|\s[a-z])", word):
@@ -148,7 +148,7 @@ with open("drdkcorpus4.txt", "r+", encoding="utf-8") as readfile:
                 # Hvis stort bogstav, forrige ord sluttede med et punktum (Eksempelvis ?? Tror sgu ikke der er nogen) eller forrige var by
                 elif previous_was_city:
                     if word[0].isupper():
-                        if word not in adresse_map and word not in bynavn_map and word not in landenavne_map and word not in drengenavne_map and word not in pigenavne_map and word not in unisexnavne_map:
+                        if word not in adresse_map and word not in bynavn_map and word not in landenavne_map and word not in drengenavne_map and word not in pigenavne_map:
                             
 
                             # Hvis ordet har et korrekt punktum som slutning på en sætning
@@ -172,7 +172,7 @@ with open("drdkcorpus4.txt", "r+", encoding="utf-8") as readfile:
                 # Hvis stort bogstav, forrige ord sluttede med et punktum (Eksempelvis St. Lucia) eller forrige var et land
                 elif previous_was_country:
                     if word[0].isupper():
-                        if word not in adresse_map and word not in bynavn_map and word not in landenavne_map and word not in drengenavne_map and word not in pigenavne_map and word not in unisexnavne_map:
+                        if word not in adresse_map and word not in bynavn_map and word not in landenavne_map and word not in drengenavne_map and word not in pigenavne_map:
                             
                             # Hvis ordet har et korrekt punktum som slutning på en sætning
                             if re.search(r"\.(?!\d+|\w+|\S|\.|\s[a-z])", word):
@@ -208,7 +208,7 @@ with open("drdkcorpus4.txt", "r+", encoding="utf-8") as readfile:
                     if re.search(r"\,(?!\d+|\w+|\S|\.|\s[a-z])", word):
                         temp_word = word.replace(',', '')
 
-                    if temp_word in drengenavne_map or temp_word in pigenavne_map or temp_word in unisexnavne_map:
+                    if temp_word in drengenavne_map or temp_word in pigenavne_map:
                         previous_was_person = True
                         # Hvis ordet har et korrekt punktum som slutning på en sætning
                         if re.search(r"\.(?!\d+|\w+|\S|\.|\s[a-z])", word):

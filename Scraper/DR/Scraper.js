@@ -15,7 +15,7 @@ var date_representation = '';
 
 var dates = [];
 
-for(let i = 2004; i < 2021; i++) {
+for(let i = 2008; i < 2010; i++) {
     for(let j = 1; j < 13; j++) {
         for(let k = 1; k < 29; k++) {
             if(k < 10) { // Dag under 10
@@ -47,32 +47,31 @@ async.whilst(
     }, 
     function makeRequestAndGetArticles(next) {
         request(next_page_url + "/" + dates[date_index], (err, res, html) => {
-
+            console.log(dates[date_index]);
             if(err) { 
                 return console.log(err); 
             }
 
-            if($('.dr-list > h2', html)[0].children[0].data.includes('Alle nyheder')) { // Muligvis ikke noedvendigt
-                for(let i = 0; i < $('.dr-list:nth-child(1) > article > h3', html).length; i++) {
-                    drURLS.push($('.dr-list:nth-child(1) > article > h3', html)[i].children[0].attribs.href);
-                }
+        
+            for(let i = 0; i < $('.dr-list:nth-child(1) > article > h3', html).length; i++) {
+                drURLS.push($('.dr-list:nth-child(1) > article > h3', html)[i].children[0].attribs.href);
+            }
 
-                for(let i = 0; i < drURLS.length; i++) {
+            for(let i = 0; i < drURLS.length; i++) {
+                
+                request(base_url + drURLS[i], (err, res, html) => {
+                    if(err) { 
+                        return console.log(err); 
+                    }
                     
-                    request(base_url + drURLS[i], (err, res, html) => {
-                        if(err) { 
-                            return console.log(err); 
+                    var article_paragraph_length = $('.dre-container__content > .dre-speech', html).length;
+                    for(let i = 0; i < article_paragraph_length; i++) {
+                        if($('.dre-container__content > .dre-speech > p', html)[i] != undefined) { // Sandsynligvis en header
+                            fs.appendFileSync("drdkcorpus.txt", $('.dre-container__content > .dre-speech > p', html)[i].children[0].data + "\n");
                         }
-                        
-                        var article_paragraph_length = $('.dre-container__content > .dre-speech', html).length;
-                        for(let i = 0; i < article_paragraph_length; i++) {
-                            if($('.dre-container__content > .dre-speech > p', html)[i] != undefined) { // Sandsynligvis en header
-                                fs.appendFileSync("drdkcorpus.txt", $('.dre-container__content > .dre-speech > p', html)[i].children[0].data + "\n");
-                            }
-                        }
-                    });
-                }    
-            }            
+                    }
+                });
+            }
 
             drURLS = [];
             if (date_index == 10) {

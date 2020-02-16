@@ -1,0 +1,19 @@
+{
+  "name": "version2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Version2Scraper.js",
+  "dependencies": {
+    "async": "^3.1.0",
+    "cheerio": "^1.0.0-rc.3",
+    "puppeteer": "^2.0.0",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.5"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

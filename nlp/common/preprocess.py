@@ -2,16 +2,17 @@ import os
 import re
 import fileinput
 
+from common.bio import BIOFILE
+
 class TrainingPreprocessor:
     def __init__(self, file):
         self.file = file
         self.preprocess(self.file)
-        self.sentence_split(self.file)
         
     def preprocess(self, file):
         '''Preprocess' the data which is used for training'''
         # Removes line having starting with a lot of spaces and digits
-        with fileinput.FileInput(self.file, inplace=True, backup='.bak') as sed_file:
+        with fileinput.FileInput(self.file, inplace=False, backup='.bak', openhook=fileinput.hook_encoded("utf-8")) as sed_file:
             for line in sed_file:
                 # Removes leading whitespace and leading tabs
                 if re.search(r"^\s+|^\t+", line):
@@ -30,15 +31,18 @@ class TrainingPreprocessor:
                 if re.search(r"(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})", line):
                     print(re.sub(r"(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})", "", line), end='')
 
+        self.sentence_split(file)
+        self.format_traning_data(file)
+
     def sentence_split(self, file):
-        # Removes line having starting with a lot of spaces and digits
-        with fileinput.FileInput(file, inplace=True, backup='.bak') as sed_file:
+        # Remove lines starting with multiple spaces and digits
+        with fileinput.FileInput(file, inplace=False, backup='.bak', openhook=fileinput.hook_encoded("utf-8")) as sed_file:
             for line in sed_file:
                 print(re.sub(r"\.(?!\d+|\w+|\S|\.|\s[a-z])", ".\n", line), end='')
 
-    def format_traning_data():
+    def format_traning_data(self, file):
         '''Formats preprocessed data into the BIO format. This is to be used for training the language model'''
-
+        BIOFILE(file)
 
 
 

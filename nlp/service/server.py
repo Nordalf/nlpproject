@@ -1,6 +1,5 @@
 import os
 import sys
-# from flask import Flask, escape, request, flash, redirect, url_for
 from sanic import Sanic, response
 from sanic.response import json
 
@@ -71,13 +70,16 @@ def anonymize_file(file_path, allow_modification=False):
     else:
         properties = file_path.rsplit('.')
         predictions, _ = Server.model.predict(file_content)
+        response = ""
         with open(properties[0] + "_anonymized." + properties[1], 'a', encoding='utf-8') as pfile:
             for sentence in predictions:
                 for item in sentence:
                     for key in item:
                         if item.get(key, '') != 'O':
                             pfile.write(key + " {" f"{item.get(key, '')}" + "} ")
+                            response += key + " {" f"{item.get(key, '')}" + "} "
                         else:
                             pfile.write(key + " ")
+                            response += key + " "
 
-        return predictions
+        return response

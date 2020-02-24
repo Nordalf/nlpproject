@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Upload new File!</title>
+        <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    </head>
+    <body>
+        <h1>Upload new File</h1>
+        <form method=post enctype=multipart/form-data action="api/v1/anonymize">
+            <input type=file name=file>
+            <input type=submit value=Upload>
+        </form>
+    </body>
+</html>

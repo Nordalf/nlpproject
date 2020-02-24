@@ -133,7 +133,6 @@ nlp/scraper/version2/package-lock.json
 nlp/scraper/version2/node_modules/
 nlp/scraper/dr/drdkcorpuscopy.txt
 nlp/scraper/dr/package-lock.json
-nlp/scraper/dr/node_modules/
 nlp/version2/body.txt
 nlp/handler/outputs/
 nlp/service/uploads
@@ -143,3 +142,6 @@ nlp/resources/*.txt
 nlp/cache_dir/*
 nlp/outputs/*
 nlp/runs/*
+node_modules/
+cache_dir/
+package-lock.json

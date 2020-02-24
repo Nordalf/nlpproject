@@ -3,98 +3,85 @@ import os
 import re
 import string
 
-ANONYMIZED_FOLDER = 'processedfiles'
+BIO_FOLDER = 'common/processedfiles/'
+RESOURCE_FOLDER = 'resources/'
 
+# Maps of known entities
 drengenavne_map = {}
-# Danish Male Names Mapping
-with open("Godkendte_Drengenavne.csv", 'r', encoding='utf-8') as gdn:
-    for line in gdn:
-        line = line.rstrip()
-        drengenavne_map[line] = line
-
-def is_in_drengenavne(word):
-    for w in drengenavne_map:
-        if re.search(r'^' + w + '$', word):
-            return True
-    return False
-
 pigenavne_map = {}
-# Danish Female Names Mapping
-with open("Godkendte_Pigenavne.csv", 'r', encoding='utf-8') as gpn:
-    for line in gpn:
-        line = line.rstrip()
-        pigenavne_map[line] = line
-
-def is_in_pigenavne(word):
-    for w in pigenavne_map:
-        if re.search(r'^' + w + '$', word):
-            return True
-    return False
-
 bynavn_map = {}
-# Danish City Names Mapping
-with open("Bynavne.txt", 'r', encoding="utf-8") as bn:
-    for line in bn:
-        line = line.rstrip()
-        bynavn_map[line] = line
-
 landenavne_map = {}
-# Country Names Mapping
-with open("Landenavne.txt", 'r', encoding='utf-8') as ln:
-    for line in ln:
-        line = line.rstrip()
-        landenavne_map[line] = line
-
 adresse_map = {}
-# Country Names Mapping
-with open("Adresser.txt", 'r', encoding="utf=8") as adrfile:
-    for line in adrfile:
-        line = line.rstrip()
-        adresse_map[line] = line
 
-# PERSON
-previous_was_person = False
-punctuation_appeared_person = False
-comma_appeared_person = False
-
-# ADRESSE
-previous_was_location = False
-punctuation_appeared_location = False
-comma_appeared_location = False
-
-# BY
-previous_was_city = False
-punctuation_appeared_city = False
-comma_appeared_city = False
-
-# LAND
-previous_was_country = False
-punctuation_appeared_country = False
-comma_appeared_country = False
-
-class NERGenerator:
+class BIOFILE:
     def __init__(self, file):
         self.file = file
-        
-    properties = file_path.rsplit('.')
-    with open(self.file, "r+", encoding="utf-8") as readfile:
-        with open(ANONYMIZED_FOLDER + '/' + properties[0]+".tsv", "a+", encoding="utf-8") as writefile:
+        load_known_entities()
+        preprocess(self.file)
+
+def load_known_entities():
+    # Danish Male Names Mapping
+    with open(RESOURCE_FOLDER + "Godkendte_Drengenavne.csv", 'r', encoding='utf-8') as gdn:
+        for line in gdn:
+            line = line.rstrip()
+            drengenavne_map[line] = line
+
+    # Danish Female Names Mapping
+    with open(RESOURCE_FOLDER + "Godkendte_Pigenavne.csv", 'r', encoding='utf-8') as gpn:
+        for line in gpn:
+            line = line.rstrip()
+            pigenavne_map[line] = line
+
+    # Danish City Names Mapping
+    with open(RESOURCE_FOLDER + "Bynavne.txt", 'r', encoding="utf-8") as bn:
+        for line in bn:
+            line = line.rstrip()
+            bynavn_map[line] = line
+
+    # Country Names Mapping
+    with open(RESOURCE_FOLDER + "Landenavne.txt", 'r', encoding='utf-8') as ln:
+        for line in ln:
+            line = line.rstrip()
+            landenavne_map[line] = line
+
+    # Country Names Mapping
+    with open(RESOURCE_FOLDER + "Adresser.txt", 'r', encoding="utf=8") as adrfile:
+        for line in adrfile:
+            line = line.rstrip()
+            adresse_map[line] = line
+
+def preprocess(file):
+    # PERSON
+    previous_was_person = False
+    punctuation_appeared_person = False
+    comma_appeared_person = False
+
+    # ADRESSE
+    previous_was_location = False
+    punctuation_appeared_location = False
+    comma_appeared_location = False
+
+    # BY
+    previous_was_city = False
+    punctuation_appeared_city = False
+    comma_appeared_city = False
+
+    # LAND
+    previous_was_country = False
+    punctuation_appeared_country = False
+    comma_appeared_country = False
+    with open(file, "r+", encoding="utf-8") as readfile:
+        with open(BIO_FOLDER + '/danish_bio.tsv', "a+", encoding="utf-8") as writefile:
             for line in readfile:
                 splitted_line = line.split(' ')
                 for word in splitted_line:
-                    # Hvis stort bogstav, forrige ord sluttede med et punktum (Eksempelvis Hr. Falk.) eller forrige var en person
-                    # person_condition = punctuation_appeared_person or previous_was_person or comma_appeared_person
-                    # location_condition = punctuation_appeared_location or previous_was_location or comma_appeared_location
-                    # city_condition = punctuation_appeared_city or previous_was_city or comma_appeared_city
-                    # country_condition = punctuation_appeared_country or previous_was_country or comma_appeared_country
-
+                    # If big letter, previous word ended with a punctuation (e.g. Mr. Johnson), or previous was a person
                     if previous_was_person:
                         if word[0].isupper():
 
                             if word not in adresse_map and word not in bynavn_map and word not in landenavne_map:
-                                # Hvis ordet har et korrekt punktum som slutning på en sætning
+                                # If the word has an ending punctuation of a sentence 
                                 if re.search(r"\.(?!\d+|\w+|\S|\.|\s[a-z])", word):
-                                    # print("Person med punktum I:", word)
                                     writefile.write(word.translate(str.maketrans('', '', string.punctuation)).rstrip('\n') + "\t" + "I-PER" + "\n")
                                     writefile.write("." + "\t" + "O" + "\n")
 
@@ -113,20 +100,17 @@ class NERGenerator:
                         punctuation_appeared_person = False
                         comma_appeared_person = False
                             
-                    # Hvis stort bogstav, forrige ord sluttede med et punktum (Eksempelvis Gl. Byvej) eller forrige var en adresse
+                    # If capitalized letter, previous word ends with punctuation (e.g. Gl. Byvej) or previous was an address                    
                     elif previous_was_location:
                         if word[0].isupper():
                         
                             if word not in adresse_map and word not in bynavn_map and word not in landenavne_map and word not in drengenavne_map and word not in pigenavne_map:
-
-                                # Hvis ordet har et korrekt punktum som slutning på en sætning
+                                # If the word has an ending punctuation of a sentence 
                                 if re.search(r"\.(?!\d+|\w+|\S|\.|\s[a-z])", word):
-                                    # print("I-ADDR med punktum I:", word)
                                     writefile.write(word.translate(str.maketrans('', '', string.punctuation)).rstrip('\n') + "\t" + "I-LOC" + "\n")
                                     writefile.write("." + "\t" + "O" + "\n")
 
                                 elif re.search(r"\,(?!\d+|\w+|\S|\.|\s[a-z])", word):
-                                    # print("I-ADDR med komma I:", word)
                                     writefile.write(word.replace(',', '').rstrip('\n') + "\t" + "I-LOC" + "\n")
                                     writefile.write("," + "\t" + "O" + "\n")
 
@@ -136,21 +120,18 @@ class NERGenerator:
                         previous_was_location = False
                         punctuation_appeared_location = False
                         comma_appeared_location = False
-                            
-                    # Hvis stort bogstav, forrige ord sluttede med et punktum (Eksempelvis ?? Tror sgu ikke der er nogen) eller forrige var by
+                    
+                    # If capitalized start letter, previous was a word ending with a punctuation, or previous was a city (unsure whether this is necessary)
                     elif previous_was_city:
                         if word[0].isupper():
                             if word not in adresse_map and word not in bynavn_map and word not in landenavne_map and word not in drengenavne_map and word not in pigenavne_map:
                                 
-
-                                # Hvis ordet har et korrekt punktum som slutning på en sætning
+                                # If the word has an ending punctuation of a sentence
                                 if re.search(r"\.(?!\d+|\w+|\S|\.|\s[a-z])", word):
-                                    # print("I-LOC med punktum I:", word)
                                     writefile.write(word.translate(str.maketrans('', '', string.punctuation)).rstrip('\n') + "\t" + "I-LOC" + "\n")
                                     writefile.write("." + "\t" + "O" + "\n")
 
                                 elif re.search(r"\,(?!\d+|\w+|\S|\.|\s[a-z])", word):
-                                    # print("I-LOC med komma I:", word)
                                     writefile.write(word.replace(',', '').rstrip('\n') + "\t" + "I-LOC" + "\n")
                                     writefile.write("," + "\t" + "O" + "\n")
 
@@ -161,19 +142,17 @@ class NERGenerator:
                         punctuation_appeared_city = False
                         comma_appeared_city = False
 
-                    # Hvis stort bogstav, forrige ord sluttede med et punktum (Eksempelvis St. Lucia) eller forrige var et land
+                    # If capitalized start letter, previous word ended with a punctuation (e.g. St. Lucia), or previous was a country
                     elif previous_was_country:
                         if word[0].isupper():
                             if word not in adresse_map and word not in bynavn_map and word not in landenavne_map and word not in drengenavne_map and word not in pigenavne_map:
                                 
-                                # Hvis ordet har et korrekt punktum som slutning på en sætning
+                                # If the word has an ending punctuation of a sentence
                                 if re.search(r"\.(?!\d+|\w+|\S|\.|\s[a-z])", word):
-                                    # print("I-GEO med punktum I:", word)
                                     writefile.write(word.translate(str.maketrans('', '', string.punctuation)).rstrip('\n') + "\t" + "I-GEO" + "\n")
                                     writefile.write("." + "\t" + "O" + "\n")
 
                                 elif re.search(r"\,(?!\d+|\w+|\S|\.|\s[a-z])", word):
-                                    # print("I-GEO med komma I:", word)
                                     writefile.write(word.replace(',', '').rstrip('\n') + "\t" + "I-GEO" + "\n")
                                     writefile.write("," + "\t" + "O" + "\n")
 
@@ -190,9 +169,8 @@ class NERGenerator:
                         previous_was_city = False
                         previous_was_country = False          
 
-                        # Hvis ordet er et genkendt navn
-                        # Ordet bliver trimmet for komma eller punktum, da hvis en genkendt entitet findes, men indeholder et af disse,
-                        # så vil der ikke være et match, da "in" er eksakt
+                        # If the word is a recognized name
+                        # The word is trimmed from comma or punctuation
                         temp_word = word
                         if re.search(r"\.(?!\d+|\w+|\S|\.|\s[a-z])", word):
                             temp_word = word.translate(str.maketrans('', '', string.punctuation))
@@ -200,17 +178,15 @@ class NERGenerator:
                         if re.search(r"\,(?!\d+|\w+|\S|\.|\s[a-z])", word):
                             temp_word = word.replace(',', '')
 
-                        if temp_word in drengenavne_map or temp_word in pigenavne_map:
+                        if temp_word in drengenavne_map or temp_word in pigenavne_map or temp_word.lower() in drengenavne_map or temp_word.lower() in pigenavne_map:
                             previous_was_person = True
-                            # Hvis ordet har et korrekt punktum som slutning på en sætning
+                            # If the word has an ending punctuation of a sentenceg
                             if re.search(r"\.(?!\d+|\w+|\S|\.|\s[a-z])", word):
-                                # print("Person med punktum B:", word)
                                 writefile.write(word.translate(str.maketrans('', '', string.punctuation)).rstrip("\n") + "\t" + "B-PER" + "\n")
                                 writefile.write("." + "\t" + "O" + "\n")
                                 previous_was_person = False
 
                             elif re.search(r"\,(?!\d+|\w+|\S|\.|\s[a-z])", word):
-                                # print("Person med komma B:", word)
                                 writefile.write(word.replace(',', '') + "\t" + "B-PER" + "\n")
                                 writefile.write("," + "\t" + "O" + "\n")
                                 previous_was_person = False
@@ -220,17 +196,16 @@ class NERGenerator:
                                 punctuation_appeared_person = False
                                 comma_appeared_person = False
 
-                        # Hvis ordet er en dansk adresse
+
+                        # If the word is a danish address
                         elif temp_word in adresse_map:
                             previous_was_location = True
                             if re.search(r"\.(?!\d+|\w+|\S|\.|\s[a-z])", word):
-                                # print("Lokation med punktum B:", word)
                                 writefile.write(word.translate(str.maketrans('', '', string.punctuation)).rstrip("\n") + "\t" + "B-LOC" + "\n")
                                 writefile.write("." + "\t" + "O" + "\n")
                                 previous_was_location = False
 
                             elif re.search(r"\,(?!\d+|\w+|\S|\.|\s[a-z])", word):
-                                # print("Lokation med komma B:", word)
                                 writefile.write(word.replace(',','') + "\t" + "B-LOC" + "\n")
                                 writefile.write("," + "\t" + "O" + "\n")
                                 previous_was_location = False
@@ -238,17 +213,15 @@ class NERGenerator:
                             else:
                                 writefile.write(word + "\t" + "B-LOC" + "\n")
 
-                        # Hvis ordet er en dansk by
-                        elif temp_word in bynavn_map:
+                        # If the word is a danish city
+                        elif temp_word in bynavn_map or temp_word.lower() in bynavn_map:
                             previous_was_city = True
                             if re.search(r"\.(?!\d+|\w+|\S|\.|\s[a-z])", word):
-                                # print("By med punktum B:", word)
                                 writefile.write(word.translate(str.maketrans('', '', string.punctuation)).rstrip("\n") + "\t" + "B-LOC" + "\n")
                                 writefile.write("." + "\t" + "O" + "\n")
                                 previous_was_city = False
 
                             elif re.search(r"\,(?!\d+|\w+|\S|\.|\s[a-z])", word):
-                                # print("By med komma B:", word)
                                 writefile.write(word.replace(',', '') + "\t" + "B-LOC" + "\n")
                                 writefile.write("," + "\t" + "O" + "\n")
                                 previous_was_city = False
@@ -256,17 +229,15 @@ class NERGenerator:
                             else:
                                 writefile.write(word + "\t" + "B-LOC" + "\n")
 
-                        # Hvis ordet er en dansk by
-                        elif temp_word in landenavne_map:
+                        # If the word is a country
+                        elif temp_word in landenavne_map or temp_word.lower() in landenavne_map:
                             previous_was_country = True
                             if re.search(r"\.(?!\d+|\w+|\S|\.|\s[a-z])", word):
-                                # print("Land med punktum B:", word)
                                 writefile.write(word.translate(str.maketrans('', '', string.punctuation)).rstrip("\n") + "\t" + "B-GEO" + "\n")
                                 writefile.write("." + "\t" + "O" + "\n")
                                 previous_was_country = False
 
                             elif re.search(r"\,(?!\d+|\w+|\S|\.|\s[a-z])", word):
-                                # print("Land med komma B:", word)
                                 writefile.write(word.replace(',', '').rstrip('\n') + "\t" + "B-GEO" + "\n")
                                 writefile.write("," + "\t" + "O" + "\n")
                                 previous_was_country = False
@@ -275,7 +246,7 @@ class NERGenerator:
                                 writefile.write(word + "\t" + "B-GEO" + "\n")
 
                         else:
-                            # Helt almindeligt ord. Ligeglad med at identificere det
+                            # Common word. No need to identify
                             if re.search(r"\.(?!\d+|\w+|\S|\.|\s[a-z])", word):
                                 word = word.rstrip("\n\r")
                                 writefile.write(word.translate(str.maketrans('', '', string.punctuation)) + "\t" + "O" + "\n")
@@ -286,5 +257,3 @@ class NERGenerator:
                                 writefile.write("," + "\t" + "O" + "\n")
                             else:
                                 writefile.write(word + "\t" + "O" + "\n")
-
-

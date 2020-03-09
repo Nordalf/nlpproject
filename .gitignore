@@ -138,6 +138,8 @@ nlp/handler/outputs/
 nlp/service/uploads
 nlp/service/cache_dir/
 nlp/resources/*.txt
+nlp/resources/*.tsv
+nlp/common/processedfiles/*.tsv
 .vscode/
 nlp/cache_dir/*
 nlp/outputs/*

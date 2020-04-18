@@ -135,6 +135,7 @@ nlp/scraper/dr/drdkcorpuscopy.txt
 nlp/scraper/dr/package-lock.json
 nlp/version2/body.txt
 nlp/handler/outputs/
+nlp/handler/outputs_new/
 nlp/service/uploads
 nlp/service/cache_dir/
 nlp/resources/*.txt

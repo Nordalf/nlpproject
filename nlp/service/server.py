@@ -2,6 +2,7 @@ import os
 import sys
 from sanic import Sanic, response
 from sanic.response import json
+import time
 
 UPLOAD_FOLDER = 'service/uploads'
 ALLOWED_EXTENSIONS = {'doc', 'docx', 'odt', 'pdf', 'rtf', 'txt'}
@@ -69,7 +70,10 @@ def anonymize_file(file_path, allow_modification=False):
         write_file(file_path,file_content)
     else:
         properties = file_path.rsplit('.')
+        t0 = time.time()
         predictions, _ = Server.model.predict(file_content)
+        time_elapsed = time.time() - t0
+        print("Time elapsed", time_elapsed)
         response = ""
         with open(properties[0] + "_anonymized." + properties[1], 'a', encoding='utf-8') as pfile:
             for sentence in predictions:

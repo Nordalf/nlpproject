@@ -2,6 +2,7 @@ import os
 import sys
 from sanic import Sanic, response
 from sanic.response import json
+from sanic_cors import CORS, cross_origin
 import time
 
 UPLOAD_FOLDER = 'service/uploads'
@@ -10,6 +11,7 @@ MODEL_NAME = 'bert'
 
 app = Sanic(__name__)
 app.config.UPLOAD_FOLDER = UPLOAD_FOLDER
+# CORS(app)
 
 class Server:
     model = None
@@ -18,7 +20,7 @@ class Server:
         self.port = port
         Server.model = model
 
-    @app.route('/api/v1/anonymize', methods = ['POST'])
+    @app.route('/api/v1/anonymize/file', methods = ['POST'])
     def anonymize_file(request):
         if request.files["file"] is None:
             return response.redirect(request.url)
@@ -33,20 +35,19 @@ class Server:
                 return response.redirect(request.url)
             with open(os.path.join(app.config.UPLOAD_FOLDER, file.name), "wb") as uploaded_file:
                 uploaded_file.write(file.body)
-            output = anonymize_file(os.path.join(app.config.UPLOAD_FOLDER, file.name))
+            output = file_anonymization(os.path.join(app.config.UPLOAD_FOLDER, file.name))
             return response.text(output)
-            
+    
+    @app.route('/api/v1/anonymize/text', methods = ['POST', 'OPTIONS'])
+    @cross_origin(app)
+    async def anonymize_text(request):
+        response = text_anonymization(request.json)
+        print(response)
+        return json({ "received": True, "data": response }, content_type="application/json; charset=utf-8")
+
     @app.route('/api/v1/anonymize', methods = ['GET'])
-    async def anonymize_file(request):
-        return response.html('''
-            <!doctype html>
-            <title>Upload new File</title>
-            <h1>Upload new File</h1>
-            <form method=post enctype=multipart/form-data>
-            <input type=file name=file>
-            <input type=submit value=Upload>
-            </form>
-        ''')
+    async def anonymize(request):
+        return json({ "received": True, "data": request.json })
     
     def Startup(self):
         app.run(host=self.host, port=self.port)
@@ -64,7 +65,7 @@ def write_file(file_path, content):
     with open(file_path, "w", encoding="utf-8") as uploaded_file:
         print(f'{content}', file=uploaded_file)
 
-def anonymize_file(file_path, allow_modification=False):
+def file_anonymization(file_path, allow_modification=False):
     file_content = read_file(file_path)
     if allow_modification:
         write_file(file_path,file_content)
@@ -87,3 +88,18 @@ def anonymize_file(file_path, allow_modification=False):
                             response += key + " "
 
         return response
+
+def text_anonymization(content):
+    t0 = time.time()
+    predictions, _ = Server.model.predict([content])
+    time_elapsed = time.time() - t0
+    print("Time elapsed", time_elapsed)
+    response = ""
+    for sentence in predictions:
+        for item in sentence:
+            for key in item:
+                if item.get(key, '') != 'O':
+                    response += key + " {" f"{item.get(key, '')}" + "} "
+                else:
+                    response += key + " "
+    return response

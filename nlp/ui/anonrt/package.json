@@ -5,6 +5,7 @@
   "main": "public/Main.js",
   "homepage": "./",
   "dependencies": {
+    "@material-ui/core": "^4.9.11",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1"

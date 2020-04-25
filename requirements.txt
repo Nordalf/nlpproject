@@ -3,3 +3,4 @@ sanic==19.12.2
 simpletransformers==0.24.8
 torch==1.4.0
 ray==0.8.4
+Sanic-Cors==0.10.0.post3

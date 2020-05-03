@@ -9,11 +9,11 @@ if __name__ == '__main__':
     parser.add_argument('--port', action='store', type=int, help='The port for the server to listen on')
     parser.add_argument('--lang', action='store', type=str, help='The language of the model you want to use. Default is Danish')
     parser.add_argument('--gpu', action='store', type=bool, help='Whether to use GPU or CPU')
-    parser.add_argument('--model_type', action='store', type=str, help='Which model to use. Default is BERT')
-    parser.add_argument('--model', action='store', type=str, help='Where the model can be foundq')
+    parser.add_argument('--model_type', action='store', type=str, help='Which pretrained model to use. Default is BERT')
+    parser.add_argument('--model', action='store', type=str, help='Where the model can be found')
     args = parser.parse_args()
 
-    model = ModelLoader(model_type=args.model_type)
+    model = ModelLoader(model=args.model)
 
     server = Server(host=args.host, port=args.port, model=model)
 

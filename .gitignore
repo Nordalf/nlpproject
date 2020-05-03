@@ -151,3 +151,6 @@ package-lock.json
 libtorch/
 build/
 dist/*
+nlp/handler/ner/cached_*
+nlp/handler/ner/runs/*
+nlp/handler/ner/cached_test_BertTokenizer_128

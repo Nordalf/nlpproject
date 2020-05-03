@@ -19,6 +19,7 @@ class Server:
         self.host = host
         self.port = port
         Server.model = model
+        print(Server.model)
 
     @app.route('/api/v1/anonymize/file', methods = ['POST'])
     def anonymize_file(request):
@@ -91,15 +92,7 @@ def file_anonymization(file_path, allow_modification=False):
 
 def text_anonymization(content):
     t0 = time.time()
-    predictions, _ = Server.model.predict([content])
+    predictions = Server.model.predict(content)
     time_elapsed = time.time() - t0
     print("Time elapsed", time_elapsed)
-    response = ""
-    for sentence in predictions:
-        for item in sentence:
-            for key in item:
-                if item.get(key, '') != 'O':
-                    response += key + " {" f"{item.get(key, '')}" + "} "
-                else:
-                    response += key + " "
-    return response
+    return predictions

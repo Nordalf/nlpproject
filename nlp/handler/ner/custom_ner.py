@@ -24,9 +24,9 @@ logger = logging.getLogger(__name__)
 
 
 class NER:
-    def __init__(self, model_name_or_path, labels, fine_tuned_model):
+    def __init__(self, model_name_or_path, labels, fine_tuned_model=None):
         self.model_args = ModelArguments(model_name_or_path='bert-base-multilingual-cased')
-        self.data_args = DataTrainingArguments(data_dir="./", labels=labels)
+        self.data_args = DataTrainingArguments(data_dir="ner/datadir/", labels=labels)
         self.training_args = TrainingArguments(output_dir="testing-model", num_train_epochs=3, per_gpu_eval_batch_size=32, save_steps=750, seed=1)
         self.labels = get_labels(self.data_args.labels)
         self.label_map: Dict[int, str] = {i: label for i, label in enumerate(self.labels)}
@@ -86,6 +86,7 @@ class NER:
         # Get the labels and prepare the label_map
         
         # Get and split the dataset into train and eval
+        self.training_args.do_train = True
         train_dataset = (
             NerDataset(
                 data_dir=self.data_args.data_dir,

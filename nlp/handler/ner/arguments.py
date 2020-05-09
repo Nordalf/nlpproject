@@ -49,3 +49,25 @@ class DataTrainingArguments:
         default=False,
         metadata={"help": "Overwrite the cached training and evaluation sets"}
     )
+
+    line_by_line:bool = field(
+        default=False,
+        metadata={"help": "Whether distinct lines of text in the dataset are to be handled as distinct sequences."}
+    )
+
+    mlm: bool = field (
+        default=False,
+        metadata={"help": "Train with masked-language modeling loss instead of language modeling."}
+    )
+
+    mlm_probability: float = field(
+        default=0.15, metadata={"help": "Ratio of tokens to mask for masked language modeling loss"}
+    )
+    block_size: int = field(
+        default=-1,
+        metadata={
+            "help": "Optional input sequence length after tokenization."
+            "The training dataset will be truncated in block of this size for training."
+            "Default to the model max input length for single sentence inputs (take into account special tokens)."
+        },
+    )

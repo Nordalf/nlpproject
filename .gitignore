@@ -159,4 +159,4 @@ cached_*
 **/runs/*
 nlp/models/**/*.bin
 __pycache__/
-
+nlp/handler/datadir/*

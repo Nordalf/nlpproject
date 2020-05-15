@@ -1,6 +1,10 @@
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
+from transformers import MODEL_WITH_LM_HEAD_MAPPING
 
+
+MODEL_CONFIG_CLASSES = list(MODEL_WITH_LM_HEAD_MAPPING.keys())
+MODEL_TYPES = tuple(conf.model_type for conf in MODEL_CONFIG_CLASSES)
 
 @dataclass
 class ModelArguments:
@@ -20,6 +24,11 @@ class ModelArguments:
         default=None, metadata={"help": "Pretrained tokenizer name or path if not the same as model_name"}
     )
 
+    model_type: Optional[str] = field(
+        default=None,
+        metadata={"help": "If training from scratch, pass a model type from the list: " + ", ".join(MODEL_TYPES)},
+    )
+
     use_fast: bool = field(default=False, metadata={"help": "Set this flag to use fast tokenization"})
     
     cache_dir: Optional[str] = field (
@@ -32,11 +41,17 @@ class DataTrainingArguments:
         Arguments pertaining to waht data we are going to input our model for training and eval
     """
 
-    data_dir: str = field (
-        metadata={"help": "The input data directory. Should contain the .txt files"}
+    train_data_file: Optional[str] = field(
+        default=None, metadata={"help": "The input training data file (a text file)."}
+    )
+
+    eval_data_file: Optional[str] = field(
+        default=None,
+        metadata={"help": "An optional input evaluation data file to evaluate the perplexity on (a text file)."},
     )
 
     labels: Optional[str] = field (
+        default="./labels.txt",
         metadata={"help": "Path to the file containing all the labels. If not specified, defaults are used"}
     )
 

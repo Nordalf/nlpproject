@@ -1,6 +1,6 @@
 # required libraries
 sanic==19.12.2
-transformers==2.9.0
+transformers==4.30.0
 torch==1.4.0
 ray==0.8.4
 Sanic-Cors==0.10.0.post3
